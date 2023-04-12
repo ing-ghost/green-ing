@@ -1,8 +1,10 @@
 package com.ghost.dev.processor;
 
 
-public interface DataProcessor<T, E> {
+import com.ghost.dev.processor.config.DataProcessorConfig;
 
-    E processData(DataInputStream<T> dataStream);
+public interface DataProcessor<C extends DataProcessorConfig, T, E> {
+
+    E processData(C config, DataInputStream<T> dataStream);
 
 }

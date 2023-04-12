@@ -3,6 +3,7 @@ package com.ghost.dev.game;
 import com.ghost.dev.game.model.ClanData;
 import com.ghost.dev.game.model.ClanJob;
 import com.ghost.dev.processor.ArrayDataInputStream;
+import com.ghost.dev.processor.config.GameDataProcessorConfig;
 import org.junit.jupiter.api.Test;
 
 import static com.ghost.dev.processor.DataProcessorExecutor.processData;
@@ -14,7 +15,8 @@ public class KnapsackClanDataProcessorTest {
         ClanJob clanJob = new ClanTestData().staticTestData();
 
         processData(
-                new KnapsackClanDataProcessor(clanJob.groupCount),
+                new KnapsackClanDataProcessor(),
+                new GameDataProcessorConfig(clanJob.groupCount),
                 new ArrayDataInputStream<>(clanJob.clans),
                 input -> {
                     for (ClanData clanData : input) {
@@ -36,7 +38,8 @@ public class KnapsackClanDataProcessorTest {
                 );
 
         processData(
-                new KnapsackClanDataProcessor(clanJob.groupCount),
+                new KnapsackClanDataProcessor(),
+                new GameDataProcessorConfig(clanJob.groupCount),
                 new ArrayDataInputStream<>(clanJob.clans),
                 input -> input
         );

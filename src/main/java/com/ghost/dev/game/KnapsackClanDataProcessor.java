@@ -3,18 +3,13 @@ package com.ghost.dev.game;
 import com.ghost.dev.game.model.ClanData;
 import com.ghost.dev.processor.DataInputStream;
 import com.ghost.dev.processor.DataProcessor;
+import com.ghost.dev.processor.config.GameDataProcessorConfig;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public final class KnapsackClanDataProcessor implements DataProcessor<ClanData, List<List<ClanData>>> {
-
-    final int groupSize;
-
-    public KnapsackClanDataProcessor(int groupSize) {
-        this.groupSize = groupSize;
-    }
+public final class KnapsackClanDataProcessor implements DataProcessor<GameDataProcessorConfig, ClanData, List<List<ClanData>>> {
 
     private void resetKnapsack(int[] k, int groupSize, int clanCount) {
         for (int i = 0; i <= groupSize; i++) {
@@ -64,10 +59,12 @@ public final class KnapsackClanDataProcessor implements DataProcessor<ClanData, 
     }
 
     @Override
-    public List<List<ClanData>> processData(DataInputStream<ClanData> dataStream) {
+    public List<List<ClanData>> processData(GameDataProcessorConfig config, DataInputStream<ClanData> dataStream) {
         List<ClanData> clans = fetchData(dataStream);
 
         if (clans.size() == 0) return Collections.emptyList();
+
+        int groupSize = config.groupCount;
 
         // groupSize => w
         // clanCount = n

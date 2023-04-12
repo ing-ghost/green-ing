@@ -4,52 +4,39 @@ import com.ghost.dev.atm.model.AtmData;
 import com.ghost.dev.atm.model.AtmStatus;
 import com.ghost.dev.processor.DataInputStream;
 import com.ghost.dev.processor.DataProcessor;
+import com.ghost.dev.processor.config.EmptyDataProcessorConfig;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
-public final class AtmDataProcessor implements DataProcessor<AtmData, List<AtmData>> {
-
-    private int score(AtmData atmData) {
-        return atmData.region * 5 + score(atmData.requestType);
-    }
-
-    private int score(String requestType) {
-        return switch (requestType) {
-            case AtmStatus.FAILURE_RESTART -> 0;
-            case AtmStatus.PRIORITY -> 1;
-            case AtmStatus.SIGNAL_LOW -> 2;
-            case AtmStatus.STANDARD -> 3;
-            default -> 4;
-        };
-    }
+public class AtmDataProcessor implements DataProcessor<EmptyDataProcessorConfig, AtmData, List<AtmData>> {
 
     @Override
-    public List<AtmData> processData(DataInputStream<AtmData> dataStream) {
-        List<AtmData> list = new LinkedList<>();
+    public List<AtmData> processData(EmptyDataProcessorConfig config, DataInputStream<AtmData> dataStream) {
+        Map<Integer, List<AtmData>> byRegions = splitByRegions(dataStream);
 
-        for(AtmData atmData : dataStream) {
-            list.add(atmData);
-        }
+        // Faster to split and then sort instead of using TreeMap
+        List<AtmData> input = sortByRegionAndFlatMap(byRegions);
 
-        list.sort((o1, o2) -> {
-            int s1 = score(o1);
-            int s2 = score(o2);
-            int cmp = Integer.compare(s1, s2);
-            if (cmp == 0) {
-                return Integer.compare(o1.atmId, o2.atmId);
-            } else {
-                return cmp;
-            }
-        });
+        List<AtmData> priority = sortAtmByPriority(input);
 
+        return removeDuplicates(priority);
+    }
 
-        List<AtmData> result = new ArrayList<>(list.size());
+    private List<AtmData> removeDuplicates(List<AtmData> priority) {
+        List<AtmData> result = new ArrayList<>(priority.size());
         int region = -1;
-        List<Integer> atm = new ArrayList<>();
+        Set<Integer> atm = new HashSet<>();
 
-        for(AtmData atmData : list) {
+        for(AtmData atmData : priority) {
             if (atmData.region != region) {
                 atm.clear();
                 region = atmData.region;
@@ -61,31 +48,63 @@ public final class AtmDataProcessor implements DataProcessor<AtmData, List<AtmDa
         }
 
         return result;
-
     }
 
-//    @Override
-//    public List<AtmData> processData(DataInputStream<AtmData> atmDataStream) {
-//        System.out.println("Start process free mem: " + Runtime.getRuntime().freeMemory());
-//        Map<AtmData, Integer> scoredMap = new HashMap<>();
-//
-//        for(AtmData atmData : atmDataStream) {
-//            Integer old = scoredMap.get(atmData);
-//            int newScore = score(atmData);
-//            if (old == null || old > newScore) {
-//                scoredMap.put(atmData, newScore);
-//            }
-//        }
-//
-//        System.out.println("sorting process free mem: " + Runtime.getRuntime().freeMemory());
-//
-//        List<Map.Entry<AtmData, Integer>> scoredList;
-//
-//        scoredList = new ArrayList<>(scoredMap.entrySet());
-//
-//        scoredList.sort(Comparator.comparingInt(Map.Entry::getValue));
-//
-//        return scoredList.stream().map(Map.Entry::getKey).toList();
-//    }
+    private List<AtmData> sortAtmByPriority(List<AtmData> input) {
+        int failureCount = 0;
+        int priorityCount = 0;
+        int lowCount = 0;
+        int standard = 0;
 
+        int region = -1;
+        int regionOffset = 0;
+
+        List<AtmData> out = new ArrayList<>();
+
+        for(AtmData atmData : input) {
+            if (region != atmData.region) {
+                region = atmData.region;
+                failureCount = 0;
+                priorityCount = 0;
+                lowCount = 0;
+                standard = 0;
+                regionOffset = out.size();
+            }
+
+            int posInRegion = switch (atmData.requestType) {
+                case AtmStatus.FAILURE_RESTART -> failureCount++;
+                case AtmStatus.PRIORITY -> failureCount + (priorityCount++);
+                case AtmStatus.SIGNAL_LOW -> failureCount + priorityCount + (lowCount++);
+                default -> failureCount + priorityCount + lowCount + (standard++);
+            };
+
+            out.add(regionOffset + posInRegion, atmData);
+        }
+
+        return out;
+    }
+
+    private List<AtmData> sortByRegionAndFlatMap(Map<Integer, List<AtmData>> byRegions) {
+        return byRegions.entrySet()
+                .stream()
+                .sorted(Comparator.comparingInt(Map.Entry::getKey))
+                .flatMap((Function<Map.Entry<Integer, List<AtmData>>, Stream<AtmData>>) integerListEntry -> integerListEntry.getValue().stream())
+                .toList();
+    }
+
+    private Map<Integer, List<AtmData>> splitByRegions(DataInputStream<AtmData> dataStream) {
+        Map<Integer, List<AtmData>> split = new HashMap<>();
+
+        for(AtmData atmData : dataStream) {
+            List<AtmData> regionList = split.get(atmData.region);
+            // computeIfAbsent has performance hit
+            if (regionList == null) {
+                regionList = new LinkedList<>();
+                split.put(atmData.region, regionList);
+            }
+            regionList.add(atmData);
+        }
+
+        return split;
+    }
 }

@@ -6,6 +6,7 @@ import com.ghost.dev.atm.model.AtmData;
 import com.ghost.dev.atm.model.AtmStatus;
 import com.ghost.dev.atm.model.AtmView;
 import com.ghost.dev.processor.ArrayDataInputStream;
+import com.ghost.dev.processor.config.EmptyDataProcessorConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +37,8 @@ public class AtmDataProcessorTest {
             List<AtmData> expectedResponse = Arrays.asList(new Resources().loadArray(testResponse[i], AtmData.class, AtmView.Request.class));
 
             List<AtmData> response = processData(
-                    new AtmDataProcessorStream(),
+                    new AtmDataProcessor(),
+                    new EmptyDataProcessorConfig(),
                     new ArrayDataInputStream<>(request),
                     input -> input
             );
@@ -59,33 +61,12 @@ public class AtmDataProcessorTest {
     void testStatic() {
         processData(
                 new AtmDataProcessor(),
+                new EmptyDataProcessorConfig(),
                 new ArrayDataInputStream<>(
                         new AtmTestData().staticTestData()
                 ),
                 input -> input
         );
-    }
-
-    @Test
-    void testCompareQueueVsList() {
-
-        ArrayDataInputStream<AtmData> data = new ArrayDataInputStream<>(
-                new AtmTestData().generateTestData(1000, 500, 1000)
-        );
-
-        List<AtmData> result1 = processData(
-                new AtmDataProcessor(),
-                data,
-                input -> input
-        );
-
-        List<AtmData> result2 = processData(
-                new AtmDataProcessorQueue(),
-                data,
-                input -> input
-        );
-
-        Assertions.assertEquals(result1, result2);
     }
 
     @Test
@@ -96,11 +77,9 @@ public class AtmDataProcessorTest {
                     new AtmTestData().generateTestData(500, 490, 500)
             );
 
-            // priority queue - 400ms
-            // simple solution - 180ms
-            // stream solution - 70ms
             List<AtmData> result = processData(
-                    new AtmDataProcessorStream(),
+                    new AtmDataProcessor(),
+                    new EmptyDataProcessorConfig(),
                     data,
                     input -> input
             );

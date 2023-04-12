@@ -3,23 +3,19 @@ package com.ghost.dev.game;
 import com.ghost.dev.game.model.ClanData;
 import com.ghost.dev.processor.DataInputStream;
 import com.ghost.dev.processor.DataProcessor;
+import com.ghost.dev.processor.config.GameDataProcessorConfig;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
-public final class GreedClanDataProcessor implements DataProcessor<ClanData, List<List<ClanData>>> {
-
-    final int groupSize;
-
-    public GreedClanDataProcessor(int groupSize) {
-        this.groupSize = groupSize;
-    }
+public final class GreedClanDataProcessor implements DataProcessor<GameDataProcessorConfig, ClanData, List<List<ClanData>>> {
 
     @Override
-    public List<List<ClanData>> processData(DataInputStream<ClanData> dataStream) {
+    public List<List<ClanData>> processData(GameDataProcessorConfig config, DataInputStream<ClanData> dataStream) {
         List<ClanData> clans = fetchDataAndSort(dataStream);
+
+        int groupSize = config.groupCount;
 
         final List<List<ClanData>> results = new ArrayList<>();
 

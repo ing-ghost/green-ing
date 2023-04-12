@@ -1,18 +1,20 @@
 package com.ghost.dev.processor;
 
+import com.ghost.dev.processor.config.DataProcessorConfig;
+
 import java.util.List;
 
-public final class DataProcessorExecutor<T, E> {
+public final class DataProcessorExecutor<C extends DataProcessorConfig, T, E> {
 
-    final DataProcessor<T, E> dataProcessor;
+    final DataProcessor<C, T, E> dataProcessor;
 
-    public DataProcessorExecutor(DataProcessor<T, E> dataProcessor) {
+    public DataProcessorExecutor(DataProcessor<C, T, E> dataProcessor) {
         this.dataProcessor = dataProcessor;
     }
 
-    public E execute(DataInputStream<T> dataStream) {
+    public E execute(C config, DataInputStream<T> dataStream) {
         long start = System.currentTimeMillis();
-        E result = dataProcessor.processData(dataStream);
+        E result = dataProcessor.processData(config, dataStream);
         long stop = System.currentTimeMillis();
 
         System.out.println("Speed: " + (stop - start));
@@ -20,12 +22,13 @@ public final class DataProcessorExecutor<T, E> {
         return result;
     }
 
-    public static <T, D1, D2> List<D2> processData(
-            DataProcessor<T, List<D1>> dataProcessor,
+    public static <C extends DataProcessorConfig, T, D1, D2> List<D2> processData(
+            DataProcessor<C, T, List<D1>> dataProcessor,
+            C config,
             DataInputStream<T> inputStream,
             PostProcess<D1, D2> postProcess) {
-        DataProcessorExecutor<T, List<D1>> dataProcessorExecutor = new DataProcessorExecutor<>(dataProcessor);
-        List<D1> result = dataProcessorExecutor.execute(inputStream);
+        DataProcessorExecutor<C, T, List<D1>> dataProcessorExecutor = new DataProcessorExecutor<>(dataProcessor);
+        List<D1> result = dataProcessorExecutor.execute(config, inputStream);
         return postProcess.batchProcess(result);
     }
 

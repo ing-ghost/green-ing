@@ -1,8 +1,8 @@
 package com.ghost.dev.transaction;
 
-import com.fasterxml.jackson.databind.util.LRUMap;
 import com.ghost.dev.processor.DataInputStream;
 import com.ghost.dev.processor.DataProcessor;
+import com.ghost.dev.processor.config.EmptyDataProcessorConfig;
 import com.ghost.dev.transaction.model.AccountBalance;
 import com.ghost.dev.transaction.model.TransactionData;
 
@@ -11,10 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class TransactionProcessorImmutable implements DataProcessor<TransactionData, List<AccountBalance>> {
+public final class TransactionProcessorImmutable implements DataProcessor<EmptyDataProcessorConfig, TransactionData, List<AccountBalance>> {
 
     @Override
-    public List<AccountBalance> processData(DataInputStream<TransactionData> dataStream) {
+    public List<AccountBalance> processData(EmptyDataProcessorConfig config, DataInputStream<TransactionData> dataStream) {
         final Map<String, BigDecimal> accounts = new HashMap<>();
         final Map<String, Integer> debitCount = new HashMap<>();
         final Map<String, Integer> creditCount = new HashMap<>();

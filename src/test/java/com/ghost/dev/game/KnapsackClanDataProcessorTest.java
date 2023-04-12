@@ -14,8 +14,8 @@ public class KnapsackClanDataProcessorTest {
         ClanJob clanJob = new ClanTestData().staticTestData();
 
         processData(
-                new KnapsackClanDataProcessor(clanJob.groupSize),
-                new ArrayDataInputStream<>(clanJob.clanData),
+                new KnapsackClanDataProcessor(clanJob.groupCount),
+                new ArrayDataInputStream<>(clanJob.clans),
                 input -> {
                     for (ClanData clanData : input) {
                         System.out.print("(" + clanData.points + ", " + clanData.numberOfPlayers + ")");
@@ -36,8 +36,8 @@ public class KnapsackClanDataProcessorTest {
                 );
 
         processData(
-                new KnapsackClanDataProcessor(clanJob.groupSize),
-                new ArrayDataInputStream<>(clanJob.clanData),
+                new KnapsackClanDataProcessor(clanJob.groupCount),
+                new ArrayDataInputStream<>(clanJob.clans),
                 input -> input
         );
     }

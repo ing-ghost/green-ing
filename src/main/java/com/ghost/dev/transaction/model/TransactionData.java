@@ -8,6 +8,12 @@ public final class TransactionData {
     public final String debitAccount;
     public final BigDecimal amount;
 
+    public TransactionData() {
+        creditAccount = null;
+        debitAccount = null;
+        amount = BigDecimal.ZERO;
+    }
+
     public TransactionData(String creditAccount, String debitAccount, float amount) {
         this.creditAccount = creditAccount;
         this.debitAccount = debitAccount;

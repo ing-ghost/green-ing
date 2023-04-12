@@ -1,6 +1,7 @@
 package com.ghost.dev.atm;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ghost.dev.Resources;
 import com.ghost.dev.atm.model.AtmData;
 import com.ghost.dev.atm.model.AtmStatus;
 import com.ghost.dev.atm.model.AtmView;
@@ -21,18 +22,18 @@ public class AtmDataProcessorTest {
     @Test
     void resourceTest() throws IOException {
         String[] testRequest = new String[]{
-                AtmTestData.REQUEST_1,
-                AtmTestData.REQUEST_2
+                Resources.ATM_REQUEST_1,
+                Resources.ATM_REQUEST_2
         };
 
         String[] testResponse = new String[]{
-                AtmTestData.RESPONSE_1,
-                AtmTestData.RESPONSE_2
+                Resources.ATM_RESPONSE_1,
+                Resources.ATM_RESPONSE_2
         };
 
         for (int i = 0; i < 2; i++) {
-            AtmData[] request = new AtmTestData().fromResource(testRequest[i]);
-            List<AtmData> expectedResponse = Arrays.asList(new AtmTestData().fromResource(testResponse[i]));
+            AtmData[] request = new Resources().loadArray(testRequest[i], AtmData.class, AtmView.Request.class);
+            List<AtmData> expectedResponse = Arrays.asList(new Resources().loadArray(testResponse[i], AtmData.class, AtmView.Request.class));
 
             List<AtmData> response = processData(
                     new AtmDataProcessorStream(),

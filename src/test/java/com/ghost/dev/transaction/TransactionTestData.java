@@ -1,16 +1,13 @@
 package com.ghost.dev.transaction;
 
+import com.ghost.dev.Resources;
 import com.ghost.dev.transaction.model.TransactionData;
 
 import java.util.Random;
 
 public final class TransactionTestData {
     public TransactionData[] staticData() {
-        return new TransactionData[]{
-                new TransactionData("32309111922661937852684864", "06105023389842834748547303", 10.90f),
-                new TransactionData("31074318698137062235845814", "66105036543749403346524547", 200.90f),
-                new TransactionData("66105036543749403346524547", "32309111922661937852684864", 50.10f)
-        };
+       return new Resources().loadArray(Resources.TRANSACTION_REQUEST_1, TransactionData.class);
     }
 
     public TransactionData[] testData(int accountCount, int transactionCount) {

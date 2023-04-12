@@ -14,8 +14,8 @@ public class GreenClanDataProcessorTest {
         ClanJob clanJob = new ClanTestData().staticTestData();
 
         processData(
-                new GreedClanDataProcessor(clanJob.groupSize),
-                new ArrayDataInputStream<>(clanJob.clanData),
+                new GreedClanDataProcessor(clanJob.groupCount),
+                new ArrayDataInputStream<>(clanJob.clans),
                 input -> {
                     for (ClanData clanData : input) {
                         System.out.print("(" + clanData.points + ", " + clanData.numberOfPlayers + ")");
@@ -36,8 +36,8 @@ public class GreenClanDataProcessorTest {
                 );
 
         processData(
-                new GreedClanDataProcessor(clanJob.groupSize),
-                new ArrayDataInputStream<>(clanJob.clanData),
+                new GreedClanDataProcessor(clanJob.groupCount),
+                new ArrayDataInputStream<>(clanJob.clans),
                 input -> input
         );
     }

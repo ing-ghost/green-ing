@@ -8,7 +8,6 @@ import com.ghost.dev.game.GreedClanDataProcessor;
 import com.ghost.dev.network.serializer.ArrayDeserializer;
 import com.ghost.dev.network.serializer.GameDeserializer;
 import com.ghost.dev.network.serializer.ObjectMapperSerializer;
-import com.ghost.dev.processor.config.GameDataProcessorConfig;
 import com.ghost.dev.transaction.TransactionProcessor;
 import com.ghost.dev.transaction.model.TransactionData;
 import com.sun.net.httpserver.HttpContext;

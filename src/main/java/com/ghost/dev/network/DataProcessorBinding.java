@@ -10,6 +10,7 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,7 +35,7 @@ public class DataProcessorBinding<C extends DataProcessorConfig, T, E> implement
         String method = httpExchange.getRequestMethod();
 
         try(InputStream inStream = httpExchange.getRequestBody()) {
-            Request<C, T[]> request = deserializeData.deserialize(inStream);
+            Request<C, T[]> request = deserializeData.deserialize(new BufferedInputStream(inStream, 100 * 1024));
             List<E> result = dataProcessor.processData(
                     request.config,
                     new ArrayDataInputStream<>(request.data)

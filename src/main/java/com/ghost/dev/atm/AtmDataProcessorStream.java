@@ -13,26 +13,43 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class AtmDataProcessorStream implements DataProcessor<AtmData, List<AtmData>> {
+
     @Override
     public List<AtmData> processData(DataInputStream<AtmData> dataStream) {
-//        long start = System.currentTimeMillis();
         Map<Integer, List<AtmData>> byRegions = splitByRegions(dataStream);
-//        System.out.println("Split time: " + (System.currentTimeMillis() - start));
 
-//        start = System.currentTimeMillis();
         // Faster to split and then sort instead of using TreeMap
-        List<AtmData> input = byRegions.entrySet()
-                .stream()
-                .sorted(Comparator.comparingInt(Map.Entry::getKey))
-                .flatMap((Function<Map.Entry<Integer, List<AtmData>>, Stream<AtmData>>) integerListEntry -> integerListEntry.getValue().stream())
-                .toList();
-//        System.out.println("sort time: " + (System.currentTimeMillis() - start));
+        List<AtmData> input = sortByRegionAndFlatMap(byRegions);
 
+        List<AtmData> priority = sortAtmByPriority(input);
+
+        return removeDuplicates(priority);
+    }
+
+    private List<AtmData> removeDuplicates(List<AtmData> priority) {
+        List<AtmData> result = new ArrayList<>(priority.size());
+        int region = -1;
+        Set<Integer> atm = new HashSet<>();
+
+        for(AtmData atmData : priority) {
+            if (atmData.region != region) {
+                atm.clear();
+                region = atmData.region;
+            }
+            if (!atm.contains(atmData.atmId)) {
+                atm.add(atmData.atmId);
+                result.add(atmData);
+            }
+        }
+
+        return result;
+    }
+
+    private List<AtmData> sortAtmByPriority(List<AtmData> input) {
         int failureCount = 0;
         int priorityCount = 0;
         int lowCount = 0;
@@ -43,7 +60,6 @@ public class AtmDataProcessorStream implements DataProcessor<AtmData, List<AtmDa
 
         List<AtmData> out = new ArrayList<>();
 
-//        start = System.currentTimeMillis();
         for(AtmData atmData : input) {
             if (region != atmData.region) {
                 region = atmData.region;
@@ -63,27 +79,16 @@ public class AtmDataProcessorStream implements DataProcessor<AtmData, List<AtmDa
 
             out.add(regionOffset + posInRegion, atmData);
         }
-//        System.out.println("priority time: " + (System.currentTimeMillis() - start));
 
-        List<AtmData> result = new ArrayList<>(out.size());
-        region = -1;
-        Set<Integer> atm = new HashSet<>();
+        return out;
+    }
 
-//        start = System.currentTimeMillis();
-        for(AtmData atmData : out) {
-            if (atmData.region != region) {
-                atm.clear();
-                region = atmData.region;
-            }
-            if (!atm.contains(atmData.atmId)) {
-                atm.add(atmData.atmId);
-                result.add(atmData);
-            }
-        }
-
-//        System.out.println("filter time: " + (System.currentTimeMillis() - start));
-
-        return result;
+    private List<AtmData> sortByRegionAndFlatMap(Map<Integer, List<AtmData>> byRegions) {
+        return byRegions.entrySet()
+                .stream()
+                .sorted(Comparator.comparingInt(Map.Entry::getKey))
+                .flatMap((Function<Map.Entry<Integer, List<AtmData>>, Stream<AtmData>>) integerListEntry -> integerListEntry.getValue().stream())
+                .toList();
     }
 
     private Map<Integer, List<AtmData>> splitByRegions(DataInputStream<AtmData> dataStream) {

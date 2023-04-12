@@ -23,7 +23,7 @@ public final class GreedClanDataProcessor implements DataProcessor<ClanData, Lis
 
         final List<List<ClanData>> results = new ArrayList<>();
 
-        List<ClanData> group = new LinkedList<>();
+        List<ClanData> group = new ArrayList<>();
         int size = 0;
 
         while(!clans.isEmpty()) {
@@ -48,7 +48,7 @@ public final class GreedClanDataProcessor implements DataProcessor<ClanData, Lis
     }
 
     private List<ClanData> fetchDataAndSort(DataInputStream<ClanData> dataStream) {
-        List<ClanData> list = new LinkedList<>();
+        List<ClanData> list = new ArrayList<>();
 
         for (ClanData clanData : dataStream) {
             list.add(clanData);

@@ -28,18 +28,20 @@ public class GreenClanDataProcessorTest {
 
     @Test
     void testDynamic() {
-        ClanJob clanJob = new ClanTestData()
-                .dynamicData(
-                        1000,
-                        50000,
-                        1, 100
-                );
+        for(int i =0; i<3; i++) {
+            ClanJob clanJob = new ClanTestData()
+                    .dynamicData(
+                            1000,
+                            20000,
+                            98, 99
+                    );
 
-        processData(
-                new GreedClanDataProcessor(clanJob.groupCount),
-                new ArrayDataInputStream<>(clanJob.clans),
-                input -> input
-        );
+            processData(
+                    new GreedClanDataProcessor(clanJob.groupCount),
+                    new ArrayDataInputStream<>(clanJob.clans),
+                    input -> input
+            );
+        }
     }
 
 }

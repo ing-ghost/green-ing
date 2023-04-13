@@ -5,6 +5,7 @@ import com.ghost.dev.network.serializer.Request;
 import com.ghost.dev.network.serializer.Serializer;
 import com.ghost.dev.processor.ArrayDataInputStream;
 import com.ghost.dev.processor.DataProcessor;
+import com.ghost.dev.processor.DataProcessorExecutor;
 import com.ghost.dev.processor.config.DataProcessorConfig;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
@@ -21,6 +22,8 @@ public class DataProcessorBinding<C extends DataProcessorConfig, T, E> implement
     private final Deserialize<C, T[]> deserializeData;
     private final Serializer<List<E>> serializer;
 
+    private final DataProcessorExecutor<C, T, List<E>> executor;
+
     public DataProcessorBinding(
             DataProcessor<C, T, List<E>> dataProcessor,
             Deserialize<C, T[]> deserializeData,
@@ -28,6 +31,7 @@ public class DataProcessorBinding<C extends DataProcessorConfig, T, E> implement
         this.dataProcessor = dataProcessor;
         this.deserializeData = deserializeData;
         this.serializer = serializer;
+        this.executor = new DataProcessorExecutor<>(dataProcessor);
     }
 
     @Override
@@ -35,13 +39,18 @@ public class DataProcessorBinding<C extends DataProcessorConfig, T, E> implement
         String method = httpExchange.getRequestMethod();
 
         try(InputStream inStream = httpExchange.getRequestBody()) {
+            long start = System.currentTimeMillis();
             Request<C, T[]> request = deserializeData.deserialize(new BufferedInputStream(inStream, 100 * 1024));
-            List<E> result = dataProcessor.processData(
+            System.out.println("Deserialize: " + (System.currentTimeMillis() - start));
+
+            List<E> result = executor.execute(
                     request.config,
                     new ArrayDataInputStream<>(request.data)
             );
 
+            start = System.currentTimeMillis();
             String response = serializer.serialize(result);
+            System.out.println("Serialize: " + (System.currentTimeMillis() - start));
 
             Headers responseHeaders = httpExchange.getResponseHeaders();
             addResponseHeaders(responseHeaders);

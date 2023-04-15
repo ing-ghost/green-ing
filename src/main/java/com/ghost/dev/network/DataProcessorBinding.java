@@ -40,7 +40,7 @@ public class DataProcessorBinding<C extends DataProcessorConfig, T, E> implement
 
         try(InputStream inStream = httpExchange.getRequestBody()) {
             long start = System.currentTimeMillis();
-            Request<C, T[]> request = deserializeData.deserialize(new BufferedInputStream(inStream, 100 * 1024));
+            Request<C, T[]> request = deserializeData.deserialize(new BufferedInputStream(inStream, 1024 * 1024));
             System.out.println("Deserialize: " + (System.currentTimeMillis() - start));
 
             List<E> result = executor.execute(

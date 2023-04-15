@@ -46,9 +46,11 @@ public final class GreedClanDataProcessor implements DataProcessor<GameDataProce
     private List<ClanData> fetchDataAndSort(DataInputStream<ClanData> dataStream) {
         List<ClanData> list = new ArrayList<>();
 
+        long  start = System.currentTimeMillis();
         for (ClanData clanData : dataStream) {
             list.add(clanData);
         }
+        System.out.println("COPY: " + (System.currentTimeMillis() - start));
 
         list.sort((o1, o2) -> {
             int result = Integer.compare(o2.points, o1.points);

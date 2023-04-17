@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.ghost.dev.atm.AtmDataProcessor;
 import com.ghost.dev.atm.model.AtmData;
 import com.ghost.dev.atm.model.AtmView;
+import com.ghost.dev.atm2.Atm2DataProcessor;
 import com.ghost.dev.game.GreedClanDataProcessor;
 import com.ghost.dev.processor.JsonFactory;
 import com.ghost.dev.processor.factory.GsonFactory;
@@ -19,6 +20,8 @@ import com.ghost.dev.processor.factory.JacksonFactory;
 import com.ghost.dev.processor.factory.StreamFactory;
 import com.ghost.dev.processor.jackson.ArrayJacksonDeserializer;
 import com.ghost.dev.processor.jackson.GameJacksonDeserializer;
+import com.ghost.dev.processor.stream.Atm2Deserializer;
+import com.ghost.dev.processor.stream.Atm2Serializer;
 import com.ghost.dev.transaction.TransactionProcessor;
 import com.ghost.dev.transaction.model.TransactionData;
 import com.google.gson.Gson;
@@ -33,6 +36,7 @@ import java.net.InetSocketAddress;
 public class Server {
 
     public static final String ATM_ENDPOINT = "/atms/calculateOrder";
+    public static final String ATM_2_ENDPOINT = "/atms/calculateOrder2";
     public static final String TRANSACTION_ENDPOINT = "/transactions/report";
     public static final String GAME_ENDPOINT = "/onlinegame/calculate";
 
@@ -66,6 +70,18 @@ public class Server {
         ));
     }
 
+    private void openAtm2Endpoint(HttpServer server) {
+        HttpContext atmContext = server.createContext(ATM_2_ENDPOINT);
+
+        com.fasterxml.jackson.core.JsonFactory factory = new com.fasterxml.jackson.core.JsonFactory();
+
+        atmContext.setHandler(new DataProcessorBinding<>(
+                new Atm2DataProcessor(),
+                new Atm2Deserializer(factory),
+                new Atm2Serializer(factory)
+        ));
+    }
+
     private void openTransactionEndpoint(HttpServer server) {
         HttpContext transactionContext = server.createContext(TRANSACTION_ENDPOINT);
 
@@ -90,6 +106,7 @@ public class Server {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
         openAtmEndpoint(server);
+        openAtm2Endpoint(server);
         openTransactionEndpoint(server);
         openGameEndpoint(server);
 

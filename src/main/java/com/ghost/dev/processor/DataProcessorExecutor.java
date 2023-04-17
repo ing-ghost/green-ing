@@ -17,7 +17,7 @@ public final class DataProcessorExecutor<C extends DataProcessorConfig, T, E> {
         E result = dataProcessor.processData(config, dataStream);
         long stop = System.currentTimeMillis();
 
-        System.out.println("Speed: " + (stop - start));
+//        System.out.println("Speed: " + (stop - start));
 
         return result;
     }

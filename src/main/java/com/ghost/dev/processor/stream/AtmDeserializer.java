@@ -1,9 +1,11 @@
-package com.ghost.dev.network.serializer;
+package com.ghost.dev.processor.stream;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.ghost.dev.atm.model.AtmData;
+import com.ghost.dev.network.serializer.Deserialize;
+import com.ghost.dev.network.serializer.Request;
 import com.ghost.dev.processor.config.EmptyDataProcessorConfig;
 
 import java.io.IOException;
@@ -13,7 +15,11 @@ import java.util.List;
 
 public class AtmDeserializer implements Deserialize<EmptyDataProcessorConfig, AtmData[]> {
 
-    private static final JsonFactory jFactory = new JsonFactory();
+    private final JsonFactory jFactory;
+
+    public AtmDeserializer(JsonFactory jFactory) {
+        this.jFactory = jFactory;
+    }
 
     @Override
     public Request<EmptyDataProcessorConfig, AtmData[]> deserialize(InputStream inputStream) throws IOException {
@@ -45,6 +51,8 @@ public class AtmDeserializer implements Deserialize<EmptyDataProcessorConfig, At
             atmList.add(new AtmData(region, requestType, atmId));
 
         }
+
+        jParser.close();
 
         return new Request<>(new EmptyDataProcessorConfig(), atmList.toArray(AtmData[]::new));
     }

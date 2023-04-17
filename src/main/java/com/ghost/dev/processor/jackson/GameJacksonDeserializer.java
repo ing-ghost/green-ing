@@ -1,18 +1,20 @@
-package com.ghost.dev.network.serializer;
+package com.ghost.dev.processor.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghost.dev.game.model.ClanData;
 import com.ghost.dev.game.model.ClanJob;
+import com.ghost.dev.network.serializer.Deserialize;
+import com.ghost.dev.network.serializer.Request;
 import com.ghost.dev.processor.config.GameDataProcessorConfig;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public class GameDeserializer implements Deserialize<GameDataProcessorConfig, ClanData[]> {
+public class GameJacksonDeserializer implements Deserialize<GameDataProcessorConfig, ClanData[]> {
 
     private final ObjectMapper objectMapper;
 
-    public GameDeserializer(ObjectMapper objectMapper) {
+    public GameJacksonDeserializer(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 

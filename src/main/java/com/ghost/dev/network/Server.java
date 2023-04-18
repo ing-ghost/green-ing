@@ -1,16 +1,7 @@
 package com.ghost.dev.network;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.ghost.dev.atm.AtmDataProcessor;
-import com.ghost.dev.atm.model.AtmData;
 import com.ghost.dev.atm.model.AtmView;
 import com.ghost.dev.atm2.Atm2DataProcessor;
 import com.ghost.dev.game.GreedClanDataProcessor;
@@ -18,13 +9,11 @@ import com.ghost.dev.processor.JsonFactory;
 import com.ghost.dev.processor.factory.GsonFactory;
 import com.ghost.dev.processor.factory.JacksonFactory;
 import com.ghost.dev.processor.factory.StreamFactory;
-import com.ghost.dev.processor.jackson.ArrayJacksonDeserializer;
-import com.ghost.dev.processor.jackson.GameJacksonDeserializer;
 import com.ghost.dev.processor.stream.Atm2Deserializer;
 import com.ghost.dev.processor.stream.Atm2Serializer;
+import com.ghost.dev.time.TimeHandler;
+import com.ghost.dev.time.TimeTracker;
 import com.ghost.dev.transaction.TransactionProcessor;
-import com.ghost.dev.transaction.model.TransactionData;
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
@@ -39,10 +28,13 @@ public class Server {
     public static final String ATM_2_ENDPOINT = "/atms/calculateOrder2";
     public static final String TRANSACTION_ENDPOINT = "/transactions/report";
     public static final String GAME_ENDPOINT = "/onlinegame/calculate";
+    public static final String TIME_ENDPOINT = "/time";
 
 //    public static final JsonFactory jsonFactory = new GsonFactory(new GsonBuilder().create());
 //    public static final JsonFactory jsonFactory = jacksonFactory();
     public static final JsonFactory jsonFactory = streamFactory();
+
+    private static final TimeTracker timeTracker = new TimeTracker();
 
 
     private static JsonFactory streamFactory() {
@@ -64,6 +56,7 @@ public class Server {
         HttpContext atmContext = server.createContext(ATM_ENDPOINT);
 
         atmContext.setHandler(new DataProcessorBinding<>(
+                timeTracker,
                 new AtmDataProcessor(),
                 jsonFactory.atmDeserializer(),
                 jsonFactory.atmSerializer()
@@ -76,6 +69,7 @@ public class Server {
         com.fasterxml.jackson.core.JsonFactory factory = new com.fasterxml.jackson.core.JsonFactory();
 
         atmContext.setHandler(new DataProcessorBinding<>(
+                timeTracker,
                 new Atm2DataProcessor(),
                 new Atm2Deserializer(factory),
                 new Atm2Serializer(factory)
@@ -86,6 +80,7 @@ public class Server {
         HttpContext transactionContext = server.createContext(TRANSACTION_ENDPOINT);
 
         transactionContext.setHandler(new DataProcessorBinding<>(
+                timeTracker,
                 new TransactionProcessor(),
                 jsonFactory.transactionDeserializer(),
                 jsonFactory.transactionSerializer())
@@ -96,9 +91,18 @@ public class Server {
         HttpContext transactionContext = server.createContext(GAME_ENDPOINT);
 
         transactionContext.setHandler(new DataProcessorBinding<>(
+                timeTracker,
                 new GreedClanDataProcessor(),
                 jsonFactory.gameDeserializer(),
                 jsonFactory.gameSerializer())
+        );
+    }
+
+    private void openTimerEndpoint(HttpServer server) {
+        HttpContext transactionContext = server.createContext(TIME_ENDPOINT);
+
+        transactionContext.setHandler(
+                new TimeHandler(timeTracker)
         );
     }
 
@@ -109,6 +113,8 @@ public class Server {
         openAtm2Endpoint(server);
         openTransactionEndpoint(server);
         openGameEndpoint(server);
+
+        openTimerEndpoint(server);
 
         server.start();
     }

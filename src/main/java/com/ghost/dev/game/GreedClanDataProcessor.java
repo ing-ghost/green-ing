@@ -37,7 +37,6 @@ public final class GreedClanDataProcessor implements DataProcessor<GameDataProce
 
             group = new ArrayList<>();
             size = 0;
-
         }
 
         return results;

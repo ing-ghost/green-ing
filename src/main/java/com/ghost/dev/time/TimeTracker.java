@@ -21,7 +21,7 @@ public class TimeTracker {
         this.serializeTime.clear();
         this.processTime.clear();
         this.deserializeTime.clear();
-        this.processTime.clear();
+        this.total.clear();
     }
 
     public synchronized String summary() {

@@ -32,7 +32,7 @@ public class GameDeserializer implements Deserialize<GameDataProcessorConfig, Cl
         List<ClanData> clanList = new ArrayList<>();
         int groupCount = -1;
 
-        while (jParser.nextToken() != JsonToken.END_ARRAY) {
+        while (jParser.nextToken() != JsonToken.END_OBJECT) {
             String fieldName = jParser.currentName();
             if ("groupCount".equals(fieldName)) {
                 jParser.nextToken();

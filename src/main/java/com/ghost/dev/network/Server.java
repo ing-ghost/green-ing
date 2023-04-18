@@ -20,6 +20,8 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 
 public class Server {
@@ -107,7 +109,7 @@ public class Server {
     }
 
     public void start() throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 300);
 
         openAtmEndpoint(server);
         openAtm2Endpoint(server);
@@ -116,6 +118,7 @@ public class Server {
 
         openTimerEndpoint(server);
 
+        server.setExecutor(Executors.newFixedThreadPool(4));
         server.start();
     }
 

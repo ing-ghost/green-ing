@@ -5,6 +5,14 @@ plugins {
 group 'org.example'
 version '1.0-SNAPSHOT'
 
+jar {
+    manifest.attributes("Main-Class": "com.ghost.dev.Main")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
 repositories {
     mavenCentral()
 }

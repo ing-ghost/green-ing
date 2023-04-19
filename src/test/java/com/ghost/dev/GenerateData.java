@@ -4,7 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghost.dev.atm.AtmTestData;
 import com.ghost.dev.atm.model.AtmData;
-import com.ghost.dev.atm.model.AtmView;
+import com.ghost.dev.json.JacksonStreamFactory;
+import com.ghost.dev.json.JsonFactory;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -12,16 +13,19 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class GenerateData {
 
+    private final JsonFactory jsonFactory = new JacksonStreamFactory(new com.fasterxml.jackson.core.JsonFactory());
+
     @Disabled
     @Test
-    void generate() throws JsonProcessingException {
+    void generate() throws IOException {
         AtmData[] atmData = new AtmTestData().generateTestData(500, 100, 200);
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.writerWithView(AtmView.Request.class);
-        String out = objectMapper.writeValueAsString(atmData);
+
+        String out = jsonFactory.atmSerializer().serialize(Arrays.asList(atmData));
+
         System.out.println(out.length() / (1024 * 1024));
 
         try(FileOutputStream f = new FileOutputStream("request.json")) {

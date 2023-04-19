@@ -1,6 +1,10 @@
 package com.ghost.dev;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ghost.dev.network.serializer.Deserialize;
+import com.ghost.dev.network.serializer.Request;
+import com.ghost.dev.processor.config.DataProcessorConfig;
+import com.ghost.dev.processor.config.EmptyDataProcessorConfig;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,29 +26,23 @@ public class Resources {
     public static final String GAME_REQUEST_1 = GAME_ROOT + "example_request.json";
     public static final String GAME_RESPONSE_1 = GAME_ROOT + "example_response.json";
 
-    public <T> T[] loadArray(String fileName, Class<T> clazz) {
-        return loadArray(fileName, clazz, null);
-    }
 
-    public <T> T[] loadArray(String fileName, Class<T> clazz, Class<?> view) {
+    public <T> T[] loadArray(String fileName, Deserialize<EmptyDataProcessorConfig, T[]> deserializer) {
         try (InputStream is = getClass().getResourceAsStream(fileName)) {
-            ObjectMapper mapper = new ObjectMapper();
-
-            if (view != null) {
-                mapper.readerWithView(view);
-            }
-
-            return mapper.readValue(is, (Class<T[]>)clazz.arrayType());
+            return deserializer.deserialize(is).data;
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        Object result = Array.newInstance(clazz, 0);
-        return (T[])result;
+        return null;
     }
 
-    public <T> T loadObject(String fileName, Class<T> clazz) {
-        return loadObject(fileName, clazz, null);
+    public <C extends DataProcessorConfig, T> Request<C, T[]> loadObject(String fileName, Deserialize<C, T[]> deserializer) {
+        try (InputStream is = getClass().getResourceAsStream(fileName)) {
+            return deserializer.deserialize(is);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public <T> T loadObject(String fileName, Class<T> clazz, Class<?> view) {

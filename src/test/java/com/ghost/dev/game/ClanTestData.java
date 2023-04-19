@@ -3,13 +3,22 @@ package com.ghost.dev.game;
 import com.ghost.dev.Resources;
 import com.ghost.dev.game.model.ClanData;
 import com.ghost.dev.game.model.ClanJob;
+import com.ghost.dev.json.JacksonStreamFactory;
+import com.ghost.dev.json.JsonFactory;
+import com.ghost.dev.network.serializer.Request;
+import com.ghost.dev.processor.config.GameDataProcessorConfig;
 
 import java.util.Random;
 
 public class ClanTestData {
 
+    private final JsonFactory jsonFactory = new JacksonStreamFactory(new com.fasterxml.jackson.core.JsonFactory());
+
     public final ClanJob staticTestData() {
-        return new Resources().loadObject(Resources.GAME_REQUEST_1, ClanJob.class);
+        Request<GameDataProcessorConfig, ClanData[]> request = new Resources()
+                .loadObject(Resources.GAME_REQUEST_1, jsonFactory.gameDeserializer());
+
+        return new ClanJob(request.config.groupCount, request.data);
     }
 
     public final ClanJob dynamicData(int groupSize, int clanCount, int minClanSize, int maxClanSize) {

@@ -1,7 +1,6 @@
 package com.ghost.dev.atm;
 
 import com.ghost.dev.atm.model.AtmData;
-import com.ghost.dev.atm.model.AtmStatus;
 import com.ghost.dev.processor.DataInputStream;
 import com.ghost.dev.processor.DataProcessor;
 import com.ghost.dev.processor.config.EmptyDataProcessorConfig;
@@ -10,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,34 +49,32 @@ public class AtmDataProcessor implements DataProcessor<EmptyDataProcessorConfig,
     }
 
     private List<AtmData> sortAtmByPriority(List<AtmData> input) {
-        int failureCount = 0;
-        int priorityCount = 0;
-        int lowCount = 0;
-        int standard = 0;
-
         int region = -1;
-        int regionOffset = 0;
 
         List<AtmData> out = new ArrayList<>();
+
+        List<AtmData>[] priorityList = new List[] {
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>()
+        };
 
         for(AtmData atmData : input) {
             if (region != atmData.region) {
                 region = atmData.region;
-                failureCount = 0;
-                priorityCount = 0;
-                lowCount = 0;
-                standard = 0;
-                regionOffset = out.size();
+
+                for (List<AtmData> pl : priorityList) {
+                    out.addAll(pl);
+                    pl.clear();
+                }
             }
 
-            int posInRegion = switch (atmData.requestType) {
-                case AtmStatus.FAILURE_RESTART -> failureCount++;
-                case AtmStatus.PRIORITY -> failureCount + (priorityCount++);
-                case AtmStatus.SIGNAL_LOW -> failureCount + priorityCount + (lowCount++);
-                default -> failureCount + priorityCount + lowCount + (standard++);
-            };
+            priorityList[atmData.requestType].add(atmData);
+        }
 
-            out.add(regionOffset + posInRegion, atmData);
+        for (List<AtmData> pl : priorityList) {
+            out.addAll(pl);
         }
 
         return out;
@@ -99,7 +95,7 @@ public class AtmDataProcessor implements DataProcessor<EmptyDataProcessorConfig,
             List<AtmData> regionList = split.get(atmData.region);
             // computeIfAbsent has performance hit
             if (regionList == null) {
-                regionList = new LinkedList<>();
+                regionList = new ArrayList<>();
                 split.put(atmData.region, regionList);
             }
             regionList.add(atmData);

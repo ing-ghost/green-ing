@@ -1,13 +1,18 @@
 package com.ghost.dev.transaction;
 
 import com.ghost.dev.Resources;
+import com.ghost.dev.json.JacksonStreamFactory;
+import com.ghost.dev.json.JsonFactory;
 import com.ghost.dev.transaction.model.TransactionData;
 
 import java.util.Random;
 
 public final class TransactionTestData {
+
+    private final JsonFactory jsonFactory = new JacksonStreamFactory(new com.fasterxml.jackson.core.JsonFactory());
+
     public TransactionData[] staticData() {
-       return new Resources().loadArray(Resources.TRANSACTION_REQUEST_1, TransactionData.class);
+       return new Resources().loadArray(Resources.TRANSACTION_REQUEST_1, jsonFactory.transactionDeserializer());
     }
 
     public TransactionData[] testData(int accountCount, int transactionCount) {

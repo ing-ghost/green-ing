@@ -25,4 +25,10 @@ public final class TransactionData {
         this.debitAccount = debitAccount;
         this.amount = new BigDecimal(amount).setScale(2, RoundingMode.HALF_UP);
     }
+
+    public TransactionData(String creditAccount, String debitAccount, BigDecimal amount) {
+        this.creditAccount = creditAccount;
+        this.debitAccount = debitAccount;
+        this.amount = amount.setScale(2, RoundingMode.HALF_UP);
+    }
 }

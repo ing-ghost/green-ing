@@ -13,13 +13,7 @@ public final class DataProcessorExecutor<C extends DataProcessorConfig, T, E> {
     }
 
     public E execute(C config, DataInputStream<T> dataStream) {
-        long start = System.currentTimeMillis();
-        E result = dataProcessor.processData(config, dataStream);
-        long stop = System.currentTimeMillis();
-
-        System.out.println("Speed: " + (stop - start));
-
-        return result;
+        return dataProcessor.processData(config, dataStream);
     }
 
     public static <C extends DataProcessorConfig, T, D1, D2> List<D2> processData(

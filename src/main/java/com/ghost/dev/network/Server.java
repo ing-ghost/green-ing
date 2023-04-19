@@ -1,20 +1,16 @@
 package com.ghost.dev.network;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghost.dev.atm.AtmDataProcessor;
-import com.ghost.dev.atm.model.AtmData;
-import com.ghost.dev.atm.model.AtmView;
 import com.ghost.dev.game.GreedClanDataProcessor;
-import com.ghost.dev.network.serializer.ArrayDeserializer;
-import com.ghost.dev.network.serializer.GameDeserializer;
-import com.ghost.dev.network.serializer.ObjectMapperSerializer;
+import com.ghost.dev.json.JacksonStreamFactory;
+import com.ghost.dev.json.JsonFactory;
 import com.ghost.dev.transaction.TransactionProcessor;
-import com.ghost.dev.transaction.model.TransactionData;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.Executors;
 
 public class Server {
 
@@ -22,53 +18,49 @@ public class Server {
     public static final String TRANSACTION_ENDPOINT = "/transactions/report";
     public static final String GAME_ENDPOINT = "/onlinegame/calculate";
 
+    public static final JsonFactory jsonFactory = new JacksonStreamFactory(new com.fasterxml.jackson.core.JsonFactory());
+
     public Server() {
     }
 
     private void openAtmEndpoint(HttpServer server) {
         HttpContext atmContext = server.createContext(ATM_ENDPOINT);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.writerWithView(AtmView.Normal.class);
-        objectMapper.readerWithView(AtmView.Request.class);
-
         atmContext.setHandler(new DataProcessorBinding<>(
                 new AtmDataProcessor(),
-                new ArrayDeserializer<>(objectMapper, AtmData.class),
-                new ObjectMapperSerializer<>(objectMapper))
+                jsonFactory.atmDeserializer(),
+                jsonFactory.atmSerializer())
         );
     }
 
     private void openTransactionEndpoint(HttpServer server) {
         HttpContext transactionContext = server.createContext(TRANSACTION_ENDPOINT);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
         transactionContext.setHandler(new DataProcessorBinding<>(
                 new TransactionProcessor(),
-                new ArrayDeserializer<>(objectMapper, TransactionData.class),
-                new ObjectMapperSerializer<>(objectMapper))
+                jsonFactory.transactionDeserializer(),
+                jsonFactory.transactionSerializer())
         );
     }
 
     private void openGameEndpoint(HttpServer server) {
         HttpContext transactionContext = server.createContext(GAME_ENDPOINT);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
         transactionContext.setHandler(new DataProcessorBinding<>(
                 new GreedClanDataProcessor(),
-                new GameDeserializer(objectMapper),
-                new ObjectMapperSerializer<>(objectMapper))
+                jsonFactory.gameDeserializer(),
+                jsonFactory.gameSerializer())
         );
     }
 
     public void start() throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 300);
 
         openAtmEndpoint(server);
         openTransactionEndpoint(server);
         openGameEndpoint(server);
+
+        server.setExecutor(Executors.newFixedThreadPool(4));
 
         server.start();
     }

@@ -2,7 +2,8 @@ package com.ghost.dev.atm;
 
 import com.ghost.dev.Resources;
 import com.ghost.dev.atm.model.AtmData;
-import com.ghost.dev.atm.model.AtmView;
+import com.ghost.dev.json.JacksonStreamFactory;
+import com.ghost.dev.json.JsonFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +15,11 @@ import static com.ghost.dev.atm.model.AtmStatus.SIGNAL_LOW;
 import static com.ghost.dev.atm.model.AtmStatus.STANDARD;
 
 public final class AtmTestData {
+
+    private final JsonFactory jsonFactory = new JacksonStreamFactory(new com.fasterxml.jackson.core.JsonFactory());
     
     public AtmData[] staticTestData() {
-        return new Resources().loadArray(Resources.ATM_REQUEST_1, AtmData.class, AtmView.Request.class);
+        return new Resources().loadArray(Resources.ATM_REQUEST_1, jsonFactory.atmDeserializer());
     }
 
     public AtmData[] generateTestData(
@@ -35,7 +38,7 @@ public final class AtmTestData {
         return data.toArray(new AtmData[0]);
     }
 
-    private String randomRequest(Random random) {
+    private int randomRequest(Random random) {
         int index = random.nextInt(4);
         return switch (index) {
             case 0 -> STANDARD;

@@ -41,16 +41,14 @@ public class DataProcessorBinding<C extends DataProcessorConfig, T, E> implement
         try(InputStream inStream = httpExchange.getRequestBody()) {
             long start = System.currentTimeMillis();
             Request<C, T[]> request = deserializeData.deserialize(new BufferedInputStream(inStream, 100 * 1024));
-            System.out.println("Deserialize: " + (System.currentTimeMillis() - start));
 
             List<E> result = executor.execute(
                     request.config,
                     new ArrayDataInputStream<>(request.data)
             );
 
-            start = System.currentTimeMillis();
             String response = serializer.serialize(result);
-            System.out.println("Serialize: " + (System.currentTimeMillis() - start));
+            System.out.println("TOTAL: " + (System.currentTimeMillis() - start));
 
             Headers responseHeaders = httpExchange.getResponseHeaders();
             addResponseHeaders(responseHeaders);

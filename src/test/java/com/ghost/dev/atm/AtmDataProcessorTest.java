@@ -1,16 +1,18 @@
 package com.ghost.dev.atm;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghost.dev.Resources;
 import com.ghost.dev.atm.model.AtmData;
 import com.ghost.dev.atm.model.AtmStatus;
-import com.ghost.dev.atm.model.AtmView;
+import com.ghost.dev.json.JacksonStreamFactory;
+import com.ghost.dev.json.JsonFactory;
 import com.ghost.dev.processor.ArrayDataInputStream;
 import com.ghost.dev.processor.config.EmptyDataProcessorConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +21,8 @@ import java.util.Set;
 import static com.ghost.dev.processor.DataProcessorExecutor.processData;
 
 public class AtmDataProcessorTest {
+
+    private final JsonFactory jsonFactory = new JacksonStreamFactory(new com.fasterxml.jackson.core.JsonFactory());
 
     @Test
     void resourceTest() throws IOException {
@@ -33,8 +37,8 @@ public class AtmDataProcessorTest {
         };
 
         for (int i = 0; i < 2; i++) {
-            AtmData[] request = new Resources().loadArray(testRequest[i], AtmData.class, AtmView.Request.class);
-            List<AtmData> expectedResponse = Arrays.asList(new Resources().loadArray(testResponse[i], AtmData.class, AtmView.Request.class));
+            AtmData[] request = new Resources().loadArray(testRequest[i], jsonFactory.atmDeserializer());
+            List<AtmData> expectedResponse = Arrays.asList(new Resources().loadArray(testResponse[i], jsonFactory.atmDeserializer()));
 
             List<AtmData> response = processData(
                     new AtmDataProcessor(),
@@ -43,14 +47,13 @@ public class AtmDataProcessorTest {
                     input -> input
             );
 
-            ObjectMapper mapper = new ObjectMapper();
+            List<AtmData> responseClean = Arrays.asList(
+                    jsonFactory.atmDeserializer()
+                            .deserialize(
+                                    new ByteArrayInputStream(jsonFactory.atmSerializer().serialize(response).getBytes(StandardCharsets.UTF_8))
+                            ).data
+            );
 
-
-            String normalView = mapper
-                    .writerWithView(AtmView.Normal.class)
-                    .writeValueAsString(response);
-
-            List<AtmData> responseClean = Arrays.asList(mapper.readValue(normalView, AtmData[].class));
 
             Assertions.assertEquals(expectedResponse, responseClean);
 
@@ -107,7 +110,7 @@ public class AtmDataProcessorTest {
         }
     }
 
-    int eventToIndex(String request) {
+    int eventToIndex(int request) {
         return switch (request) {
             case AtmStatus.FAILURE_RESTART -> 0;
             case AtmStatus.PRIORITY -> 1;

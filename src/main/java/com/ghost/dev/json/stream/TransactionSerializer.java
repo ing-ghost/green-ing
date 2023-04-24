@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class TransactionSerializer implements Serializer<List<AccountBalance>> {
+public final class TransactionSerializer implements Serializer<List<AccountBalance>> {
 
     private final JsonFactory jFactory;
 

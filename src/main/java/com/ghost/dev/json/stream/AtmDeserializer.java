@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AtmDeserializer implements Deserialize<EmptyDataProcessorConfig, AtmData[]> {
+public final class AtmDeserializer implements Deserialize<EmptyDataProcessorConfig, AtmData[]> {
 
     private final JsonFactory jFactory;
 

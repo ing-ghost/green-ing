@@ -1,5 +1,6 @@
 package com.ghost.dev.json;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.ghost.dev.atm.model.AtmData;
 import com.ghost.dev.game.model.ClanData;
 import com.ghost.dev.json.stream.AtmDeserializer;
@@ -17,11 +18,11 @@ import com.ghost.dev.transaction.model.TransactionData;
 
 import java.util.List;
 
-public class JacksonStreamFactory implements JsonFactory {
+public final class JacksonStreamFactory implements SerializationFactory {
 
-    private final com.fasterxml.jackson.core.JsonFactory jsonFactory;
+    private final JsonFactory jsonFactory;
 
-    public JacksonStreamFactory(com.fasterxml.jackson.core.JsonFactory jsonFactory) {
+    public JacksonStreamFactory(JsonFactory jsonFactory) {
         this.jsonFactory = jsonFactory;
     }
 

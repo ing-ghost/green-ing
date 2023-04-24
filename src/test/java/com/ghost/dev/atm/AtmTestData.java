@@ -1,9 +1,10 @@
 package com.ghost.dev.atm;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.ghost.dev.Resources;
 import com.ghost.dev.atm.model.AtmData;
 import com.ghost.dev.json.JacksonStreamFactory;
-import com.ghost.dev.json.JsonFactory;
+import com.ghost.dev.json.SerializationFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +17,10 @@ import static com.ghost.dev.atm.model.AtmStatus.STANDARD;
 
 public final class AtmTestData {
 
-    private final JsonFactory jsonFactory = new JacksonStreamFactory(new com.fasterxml.jackson.core.JsonFactory());
+    private final SerializationFactory serializationFactory = new JacksonStreamFactory(new JsonFactory());
     
     public AtmData[] staticTestData() {
-        return new Resources().loadArray(Resources.ATM_REQUEST_1, jsonFactory.atmDeserializer());
+        return new Resources().loadArray(Resources.ATM_REQUEST_1, serializationFactory.atmDeserializer());
     }
 
     public AtmData[] generateTestData(

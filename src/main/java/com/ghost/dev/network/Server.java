@@ -1,9 +1,10 @@
 package com.ghost.dev.network;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.ghost.dev.atm.AtmDataProcessor;
 import com.ghost.dev.game.GreedClanDataProcessor;
 import com.ghost.dev.json.JacksonStreamFactory;
-import com.ghost.dev.json.JsonFactory;
+import com.ghost.dev.json.SerializationFactory;
 import com.ghost.dev.transaction.TransactionProcessor;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
@@ -18,7 +19,7 @@ public class Server {
     public static final String TRANSACTION_ENDPOINT = "/transactions/report";
     public static final String GAME_ENDPOINT = "/onlinegame/calculate";
 
-    public static final JsonFactory jsonFactory = new JacksonStreamFactory(new com.fasterxml.jackson.core.JsonFactory());
+    public static final SerializationFactory serializationFactory = new JacksonStreamFactory(new JsonFactory());
 
     public Server() {
     }
@@ -28,8 +29,8 @@ public class Server {
 
         atmContext.setHandler(new DataProcessorBinding<>(
                 new AtmDataProcessor(),
-                jsonFactory.atmDeserializer(),
-                jsonFactory.atmSerializer())
+                serializationFactory.atmDeserializer(),
+                serializationFactory.atmSerializer())
         );
     }
 
@@ -38,8 +39,8 @@ public class Server {
 
         transactionContext.setHandler(new DataProcessorBinding<>(
                 new TransactionProcessor(),
-                jsonFactory.transactionDeserializer(),
-                jsonFactory.transactionSerializer())
+                serializationFactory.transactionDeserializer(),
+                serializationFactory.transactionSerializer())
         );
     }
 
@@ -48,8 +49,8 @@ public class Server {
 
         transactionContext.setHandler(new DataProcessorBinding<>(
                 new GreedClanDataProcessor(),
-                jsonFactory.gameDeserializer(),
-                jsonFactory.gameSerializer())
+                serializationFactory.gameDeserializer(),
+                serializationFactory.gameSerializer())
         );
     }
 

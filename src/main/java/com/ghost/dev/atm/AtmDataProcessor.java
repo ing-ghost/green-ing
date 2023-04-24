@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class AtmDataProcessor implements DataProcessor<EmptyDataProcessorConfig, AtmData, List<AtmData>> {
+public final class AtmDataProcessor implements DataProcessor<EmptyDataProcessorConfig, AtmData, List<AtmData>> {
 
     @Override
     public List<AtmData> processData(EmptyDataProcessorConfig config, DataInputStream<AtmData> dataStream) {

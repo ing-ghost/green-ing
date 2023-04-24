@@ -1,11 +1,10 @@
 package com.ghost.dev;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonFactory;
 import com.ghost.dev.atm.AtmTestData;
 import com.ghost.dev.atm.model.AtmData;
 import com.ghost.dev.json.JacksonStreamFactory;
-import com.ghost.dev.json.JsonFactory;
+import com.ghost.dev.json.SerializationFactory;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -17,14 +16,14 @@ import java.util.Arrays;
 
 public class GenerateData {
 
-    private final JsonFactory jsonFactory = new JacksonStreamFactory(new com.fasterxml.jackson.core.JsonFactory());
+    private final SerializationFactory serializationFactory = new JacksonStreamFactory(new JsonFactory());
 
     @Disabled
     @Test
     void generate() throws IOException {
         AtmData[] atmData = new AtmTestData().generateTestData(500, 100, 200);
 
-        String out = jsonFactory.atmSerializer().serialize(Arrays.asList(atmData));
+        String out = serializationFactory.atmSerializer().serialize(Arrays.asList(atmData));
 
         System.out.println(out.length() / (1024 * 1024));
 

@@ -1,10 +1,11 @@
 package com.ghost.dev.atm;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.ghost.dev.Resources;
 import com.ghost.dev.atm.model.AtmData;
 import com.ghost.dev.atm.model.AtmStatus;
 import com.ghost.dev.json.JacksonStreamFactory;
-import com.ghost.dev.json.JsonFactory;
+import com.ghost.dev.json.SerializationFactory;
 import com.ghost.dev.processor.ArrayDataInputStream;
 import com.ghost.dev.processor.config.EmptyDataProcessorConfig;
 import org.junit.jupiter.api.Assertions;
@@ -22,7 +23,7 @@ import static com.ghost.dev.processor.DataProcessorExecutor.processData;
 
 public class AtmDataProcessorTest {
 
-    private final JsonFactory jsonFactory = new JacksonStreamFactory(new com.fasterxml.jackson.core.JsonFactory());
+    private final SerializationFactory serializationFactory = new JacksonStreamFactory(new JsonFactory());
 
     @Test
     void resourceTest() throws IOException {
@@ -37,8 +38,8 @@ public class AtmDataProcessorTest {
         };
 
         for (int i = 0; i < 2; i++) {
-            AtmData[] request = new Resources().loadArray(testRequest[i], jsonFactory.atmDeserializer());
-            List<AtmData> expectedResponse = Arrays.asList(new Resources().loadArray(testResponse[i], jsonFactory.atmDeserializer()));
+            AtmData[] request = new Resources().loadArray(testRequest[i], serializationFactory.atmDeserializer());
+            List<AtmData> expectedResponse = Arrays.asList(new Resources().loadArray(testResponse[i], serializationFactory.atmDeserializer()));
 
             List<AtmData> response = processData(
                     new AtmDataProcessor(),
@@ -48,9 +49,9 @@ public class AtmDataProcessorTest {
             );
 
             List<AtmData> responseClean = Arrays.asList(
-                    jsonFactory.atmDeserializer()
+                    serializationFactory.atmDeserializer()
                             .deserialize(
-                                    new ByteArrayInputStream(jsonFactory.atmSerializer().serialize(response).getBytes(StandardCharsets.UTF_8))
+                                    new ByteArrayInputStream(serializationFactory.atmSerializer().serialize(response).getBytes(StandardCharsets.UTF_8))
                             ).data
             );
 

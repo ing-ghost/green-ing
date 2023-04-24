@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class GameSerializer implements Serializer<List<List<ClanData>>> {
+public final class GameSerializer implements Serializer<List<List<ClanData>>> {
 
     private final JsonFactory jFactory;
 

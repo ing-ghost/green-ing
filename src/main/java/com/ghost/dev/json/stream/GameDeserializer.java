@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameDeserializer implements Deserialize<GameDataProcessorConfig, ClanData[]> {
+public final class GameDeserializer implements Deserialize<GameDataProcessorConfig, ClanData[]> {
 
     private final JsonFactory jFactory;
 

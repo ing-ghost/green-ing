@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class AtmSerializer implements Serializer<List<AtmData>> {
+public final class AtmSerializer implements Serializer<List<AtmData>> {
 
     private final JsonFactory jFactory;
 

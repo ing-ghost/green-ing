@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransactionDeserializer implements Deserialize<EmptyDataProcessorConfig, TransactionData[]> {
+public final class TransactionDeserializer implements Deserialize<EmptyDataProcessorConfig, TransactionData[]> {
 
     private final JsonFactory jFactory;
 

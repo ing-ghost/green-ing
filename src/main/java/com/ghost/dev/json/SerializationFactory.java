@@ -11,7 +11,7 @@ import com.ghost.dev.transaction.model.TransactionData;
 
 import java.util.List;
 
-public interface JsonFactory {
+public interface SerializationFactory {
 
     Serializer<List<AtmData>> atmSerializer();
     Serializer<List<AccountBalance>> transactionSerializer();

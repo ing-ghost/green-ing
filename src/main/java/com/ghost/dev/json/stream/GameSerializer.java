@@ -20,7 +20,7 @@ public final class GameSerializer implements Serializer<List<List<ClanData>>> {
     }
 
     @Override
-    public String serialize(List<List<ClanData>> result) throws IOException {
+    public byte[] serialize(List<List<ClanData>> result) throws IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
         JsonGenerator generator = jFactory
@@ -43,11 +43,12 @@ public final class GameSerializer implements Serializer<List<List<ClanData>>> {
         }
 
         generator.writeEndArray();
+        generator.flush();
 
         generator.close();
         stream.close();
 
-        return stream.toString(StandardCharsets.UTF_8);
+        return stream.toByteArray();
     }
 }
 

@@ -47,16 +47,16 @@ public class DataProcessorBinding<C extends DataProcessorConfig, T, E> implement
                     new ArrayDataInputStream<>(request.data)
             );
 
-            String response = serializer.serialize(result);
+            byte[] response = serializer.serialize(result);
             System.out.println("TOTAL: " + (System.currentTimeMillis() - start));
 
             Headers responseHeaders = httpExchange.getResponseHeaders();
             addResponseHeaders(responseHeaders);
 
             //Sending back response to the client
-            httpExchange.sendResponseHeaders(200, response.length());
+            httpExchange.sendResponseHeaders(200, response.length);
             OutputStream outStream = httpExchange.getResponseBody();
-            outStream.write(response.getBytes());
+            outStream.write(response);
             outStream.close();
         }
 

@@ -8,7 +8,6 @@ import com.ghost.dev.network.serializer.Serializer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public final class AtmSerializer implements Serializer<List<AtmData>> {
@@ -20,7 +19,7 @@ public final class AtmSerializer implements Serializer<List<AtmData>> {
     }
 
     @Override
-    public String serialize(List<AtmData> result) throws IOException {
+    public byte[] serialize(List<AtmData> result) throws IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
         JsonGenerator generator = jFactory
@@ -36,10 +35,11 @@ public final class AtmSerializer implements Serializer<List<AtmData>> {
         }
 
         generator.writeEndArray();
+        generator.flush();
 
         generator.close();
         stream.close();
 
-        return stream.toString(StandardCharsets.UTF_8);
+        return stream.toByteArray();
     }
 }

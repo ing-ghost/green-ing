@@ -23,7 +23,7 @@ public class GenerateData {
     void generate() throws IOException {
         AtmData[] atmData = new AtmTestData().generateTestData(500, 100, 200);
 
-        String out = serializationFactory.atmSerializer().serialize(Arrays.asList(atmData));
+        String out = new String(serializationFactory.atmSerializer().serialize(Arrays.asList(atmData)), StandardCharsets.UTF_8);
 
         System.out.println(out.length() / (1024 * 1024));
 

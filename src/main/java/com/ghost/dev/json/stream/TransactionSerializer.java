@@ -20,7 +20,7 @@ public final class TransactionSerializer implements Serializer<List<AccountBalan
     }
 
     @Override
-    public String serialize(List<AccountBalance> result) throws IOException {
+    public byte[] serialize(List<AccountBalance> result) throws IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
         JsonGenerator generator = jFactory
@@ -40,10 +40,11 @@ public final class TransactionSerializer implements Serializer<List<AccountBalan
         }
 
         generator.writeEndArray();
+        generator.flush();
 
         generator.close();
         stream.close();
 
-        return stream.toString(StandardCharsets.UTF_8);
+        return stream.toByteArray();
     }
 }

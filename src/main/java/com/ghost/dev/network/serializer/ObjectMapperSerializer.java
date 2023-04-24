@@ -13,7 +13,7 @@ public class ObjectMapperSerializer<E> implements Serializer<E> {
     }
 
     @Override
-    public String serialize(E result) throws IOException {
-        return objectMapper.writeValueAsString(result);
+    public byte[] serialize(E result) throws IOException {
+        return objectMapper.writeValueAsBytes(result);
     }
 }

@@ -51,7 +51,7 @@ public class AtmDataProcessorTest {
             List<AtmData> responseClean = Arrays.asList(
                     serializationFactory.atmDeserializer()
                             .deserialize(
-                                    new ByteArrayInputStream(serializationFactory.atmSerializer().serialize(response).getBytes(StandardCharsets.UTF_8))
+                                    new ByteArrayInputStream(serializationFactory.atmSerializer().serialize(response))
                             ).data
             );
 

@@ -7,6 +7,7 @@ import com.ghost.dev.processor.ArrayDataInputStream;
 import com.ghost.dev.processor.DataProcessor;
 import com.ghost.dev.processor.DataProcessorExecutor;
 import com.ghost.dev.processor.config.DataProcessorConfig;
+import com.ghost.dev.timer.TimeTracker;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -18,6 +19,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 public class DataProcessorBinding<C extends DataProcessorConfig, T, E> implements HttpHandler {
+    private final TimeTracker timeTracker;
     private final DataProcessor<C, T, List<E>> dataProcessor;
     private final Deserialize<C, T[]> deserializeData;
     private final Serializer<List<E>> serializer;
@@ -25,9 +27,11 @@ public class DataProcessorBinding<C extends DataProcessorConfig, T, E> implement
     private final DataProcessorExecutor<C, T, List<E>> executor;
 
     public DataProcessorBinding(
+            TimeTracker timeTracker,
             DataProcessor<C, T, List<E>> dataProcessor,
             Deserialize<C, T[]> deserializeData,
             Serializer<List<E>> serializer) {
+        this.timeTracker = timeTracker;
         this.dataProcessor = dataProcessor;
         this.deserializeData = deserializeData;
         this.serializer = serializer;
@@ -39,16 +43,21 @@ public class DataProcessorBinding<C extends DataProcessorConfig, T, E> implement
         String method = httpExchange.getRequestMethod();
 
         try(InputStream inStream = httpExchange.getRequestBody()) {
-            long start = System.currentTimeMillis();
+            long p0 = System.currentTimeMillis();
             Request<C, T[]> request = deserializeData.deserialize(new BufferedInputStream(inStream, 100 * 1024));
+            long p1 = System.currentTimeMillis();
 
             List<E> result = executor.execute(
                     request.config,
                     new ArrayDataInputStream<>(request.data)
             );
+            long p2 = System.currentTimeMillis();
 
             byte[] response = serializer.serialize(result);
-            System.out.println("TOTAL: " + (System.currentTimeMillis() - start));
+
+            long p3 = System.currentTimeMillis();
+
+            timeTracker.trackTime(p3 - p2, p2 - p1, p1 - p0);
 
             Headers responseHeaders = httpExchange.getResponseHeaders();
             addResponseHeaders(responseHeaders);
@@ -58,6 +67,7 @@ public class DataProcessorBinding<C extends DataProcessorConfig, T, E> implement
             OutputStream outStream = httpExchange.getResponseBody();
             outStream.write(response);
             outStream.close();
+
         }
 
     }

@@ -33,8 +33,8 @@ public final class TransactionProcessor implements DataProcessor<EmptyDataProces
                 accounts.put(atmData.debitAccount, debitAccount);
             }
 
-            creditAccount.balance = creditAccount.balance.subtract(atmData.amount);
-            debitAccount.balance = debitAccount.balance.add(atmData.amount);
+            creditAccount.balance = creditAccount.balance.add(atmData.amount);
+            debitAccount.balance = debitAccount.balance.subtract(atmData.amount);
 
             creditAccount.credit++;
             debitAccount.debit++;

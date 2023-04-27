@@ -32,9 +32,9 @@ public final class TransactionSerializer implements Serializer<List<AccountBalan
             generator.writeStartObject();
 
             generator.writeStringField("account", accountBalance.account);
-            generator.writeStringField("amount", accountBalance.amount.toString());
-            generator.writeNumberField("creditCount", accountBalance.creditCount);
             generator.writeNumberField("debitCount", accountBalance.debitCount);
+            generator.writeNumberField("creditCount", accountBalance.creditCount);
+            generator.writeNumberField("balance", accountBalance.amount);
 
             generator.writeEndObject();
         }

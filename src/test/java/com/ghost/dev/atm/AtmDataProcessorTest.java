@@ -55,6 +55,9 @@ public class AtmDataProcessorTest {
                             ).data
             );
 
+            System.out.println(
+                    new String(serializationFactory.atmSerializer().serialize(response))
+            );
 
             Assertions.assertEquals(expectedResponse, responseClean);
 

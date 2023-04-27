@@ -6,14 +6,14 @@ import com.ghost.dev.processor.DataProcessor;
 import com.ghost.dev.processor.config.GameDataProcessorConfig;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.List;
 
 public final class GreedClanDataProcessor implements DataProcessor<GameDataProcessorConfig, ClanData, List<List<ClanData>>> {
 
     @Override
     public List<List<ClanData>> processData(GameDataProcessorConfig config, DataInputStream<ClanData> dataStream) {
-        List<ClanData> clans = fetchDataAndSort(dataStream);
+        ClanData[] clans = fetchDataAndSort(dataStream);
 
         int groupSize = config.groupCount;
 
@@ -22,15 +22,21 @@ public final class GreedClanDataProcessor implements DataProcessor<GameDataProce
         List<ClanData> group = new ArrayList<>();
         int size = 0;
 
-        while(!clans.isEmpty()) {
-            Iterator<ClanData> iter = clans.iterator();
-            while (iter.hasNext() && size < groupSize) {
-                ClanData clanData = iter.next();
-                if (size + clanData.numberOfPlayers <= groupSize) {
-                    iter.remove();
+        int removedCount = 0;
+        while(removedCount < clans.length) {
+            int index = 0;
+
+            while (index < clans.length && size < groupSize) {
+                ClanData clanData = clans[index];
+
+                if (clanData != null && size + clanData.numberOfPlayers <= groupSize) {
+                    removedCount++;
+                    clans[index] = null;
                     group.add(clanData);
                     size += clanData.numberOfPlayers;
                 }
+
+                index++;
             }
 
             results.add(group);
@@ -43,14 +49,10 @@ public final class GreedClanDataProcessor implements DataProcessor<GameDataProce
         return results;
     }
 
-    private List<ClanData> fetchDataAndSort(DataInputStream<ClanData> dataStream) {
-        List<ClanData> list = new ArrayList<>();
+    private ClanData[] fetchDataAndSort(DataInputStream<ClanData> dataStream) {
+        ClanData[] data = dataStream.getAll();
 
-        for (ClanData clanData : dataStream) {
-            list.add(clanData);
-        }
-
-        list.sort((o1, o2) -> {
+        Arrays.sort(data, (o1, o2) -> {
             int result = Integer.compare(o2.points, o1.points);
             if (result == 0) {
                 return Integer.compare(o1.numberOfPlayers, o2.numberOfPlayers);
@@ -59,7 +61,7 @@ public final class GreedClanDataProcessor implements DataProcessor<GameDataProce
             }
         });
 
-        return list;
+        return data;
     }
 
 }

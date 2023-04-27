@@ -58,6 +58,8 @@ public class DataProcessorBinding<C extends DataProcessorConfig, T, E> implement
             OutputStream outStream = httpExchange.getResponseBody();
             outStream.write(response);
             outStream.close();
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
 
     }

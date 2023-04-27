@@ -26,5 +26,11 @@ public final class ArrayDataInputStream<T> implements DataInputStream<T> {
             }
         };
     }
+
+    @Override
+    public T[] getAll() {
+        return data;
+    }
+
 }
 

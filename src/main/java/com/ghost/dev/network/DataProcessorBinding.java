@@ -65,7 +65,7 @@ public class DataProcessorBinding<C extends DataProcessorConfig, T, E> implement
     }
 
     private void addResponseHeaders(Headers responseHeaders) {
-        responseHeaders.add("Access-Control-Allow-Origin", "*");
+        responseHeaders.add("Access-Control-Allow-Origin", "localhost:8080");
         responseHeaders.add("Access-Control-Allow-Headers","origin, content-type, accept, authorization");
         responseHeaders.add("Access-Control-Allow-Credentials", "true");
         responseHeaders.add("Access-Control-Allow-Methods", "GET, POST");
